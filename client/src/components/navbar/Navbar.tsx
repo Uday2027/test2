@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plane, Menu, X } from 'lucide-react';
+import { Plane, Menu, X, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface NavbarProps {
   onOpenBooking: () => void;
+  onOpenAdmin: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking, onOpenAdmin }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -28,7 +29,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
         isScrolled
           ? 'bg-[#031422]/85 backdrop-blur-xl border-b border-white/10 py-3 shadow-lg shadow-black/20'
           : 'bg-transparent py-6'
@@ -62,9 +63,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
           ))}
         </nav>
 
-        {/* Social Icons & Quick Action */}
-        <div className="hidden md:flex items-center gap-5">
-          <div className="flex items-center gap-3 text-slate-300">
+        {/* Social Icons, Admin Link & Quick Action */}
+        <div className="hidden md:flex items-center gap-4">
+          <div className="flex items-center gap-2 text-slate-300">
             {/* TikTok */}
             <a
               href="https://tiktok.com"
@@ -103,6 +104,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
             </a>
           </div>
 
+          {/* Admin Dashboard Button */}
+          <button
+            onClick={onOpenAdmin}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-amber-400/20 text-slate-300 hover:text-amber-300 border border-white/10 hover:border-amber-400/40 text-xs font-semibold transition duration-200 cursor-pointer"
+            title="Open Admin Portal"
+          >
+            <Shield className="w-3.5 h-3.5 text-amber-400" />
+            <span>Admin</span>
+          </button>
+
           <Button
             variant="outline"
             size="sm"
@@ -114,13 +125,22 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
         </div>
 
         {/* Mobile menu button */}
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden text-white p-2 focus:outline-none"
-          aria-label="Toggle menu"
-        >
-          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+        <div className="md:hidden flex items-center gap-2">
+          <button
+            onClick={onOpenAdmin}
+            className="p-2 text-amber-400 hover:bg-white/10 rounded-full"
+            aria-label="Admin"
+          >
+            <Shield className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="text-white p-2 focus:outline-none"
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile dropdown */}
@@ -142,11 +162,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenBooking }) => {
                 {link.name}
               </a>
             ))}
-            <div className="pt-2 flex items-center justify-between">
-              <div className="flex gap-4 text-slate-300">
-                <span className="text-xs text-slate-400">Follow us:</span>
-                <span className="text-amber-300 text-xs font-semibold">@flyflytravel</span>
-              </div>
+            <div className="pt-2 flex items-center justify-between border-t border-white/10">
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onOpenAdmin();
+                }}
+                className="flex items-center gap-1.5 text-xs text-amber-300 font-bold"
+              >
+                <Shield className="w-4 h-4" />
+                <span>Admin Dashboard</span>
+              </button>
               <Button
                 variant="default"
                 size="sm"

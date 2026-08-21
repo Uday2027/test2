@@ -10,9 +10,11 @@ import { ReviewsSection } from '@/components/reviews/ReviewsSection';
 import { BookingModal } from '@/components/booking/BookingModal';
 import { PartnerPerksModal } from '@/components/partners/PartnerPerksModal';
 import { ImageModal } from '@/components/gallery/ImageModal';
+import { AdminPortal } from '@/components/admin/AdminPortal';
 import { Footer } from '@/components/footer/Footer';
 import { Tour, StatsData, Review } from '@/types';
 import { api, FALLBACK_STATS, FALLBACK_HERO_TOURS } from '@/services/api';
+import { Shield } from 'lucide-react';
 
 export function App() {
   const [stats, setStats] = useState<StatsData>(FALLBACK_STATS);
@@ -24,26 +26,28 @@ export function App() {
   const [selectedTourId, setSelectedTourId] = useState<string | undefined>(undefined);
   const [activeTourDetail, setActiveTourDetail] = useState<Tour | null>(null);
   const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
   
   // Lightbox
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [lightboxTitle, setLightboxTitle] = useState<string>('');
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [statsData, toursData, reviewsData] = await Promise.all([
-          api.getStats(),
-          api.getTours(),
-          api.getReviews(),
-        ]);
-        if (statsData) setStats(statsData);
-        if (toursData && toursData.length > 0) setTours(toursData);
-        if (reviewsData) setReviews(reviewsData);
-      } catch (err) {
-        console.error('Error fetching data from API:', err);
-      }
+  const loadData = async () => {
+    try {
+      const [statsData, toursData, reviewsData] = await Promise.all([
+        api.getStats(),
+        api.getTours(),
+        api.getReviews(),
+      ]);
+      if (statsData) setStats(statsData);
+      if (toursData && toursData.length > 0) setTours(toursData);
+      if (reviewsData) setReviews(reviewsData);
+    } catch (err) {
+      console.error('Error fetching data from API:', err);
     }
+  };
+
+  useEffect(() => {
     loadData();
   }, []);
 
@@ -95,8 +99,11 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-[#031422] text-slate-100 selection:bg-amber-400 selection:text-slate-950">
-      {/* Fixed Navigation Bar */}
-      <Navbar onOpenBooking={() => handleOpenBooking()} />
+      {/* Fixed Navigation Bar with Admin trigger */}
+      <Navbar
+        onOpenBooking={() => handleOpenBooking()}
+        onOpenAdmin={() => setIsAdminOpen(true)}
+      />
 
       {/* Hero Section with Machu Picchu & Hawaii Slide */}
       <HeroSection
@@ -134,6 +141,16 @@ export function App() {
       {/* Platform Footer with Newsletter */}
       <Footer />
 
+      {/* Floating Admin Quick Access Badge in bottom right */}
+      <button
+        onClick={() => setIsAdminOpen(true)}
+        className="fixed bottom-6 right-6 z-30 px-4 py-2.5 rounded-full bg-slate-900/90 hover:bg-amber-400 hover:text-slate-950 text-amber-300 border border-amber-400/40 shadow-xl backdrop-blur-md text-xs font-bold flex items-center gap-2 transition-all duration-300 hover:scale-105 cursor-pointer"
+        title="Open Admin Dashboard"
+      >
+        <Shield className="w-4 h-4" />
+        <span>Admin Panel</span>
+      </button>
+
       {/* Interactive Modals */}
       <BookingModal
         isOpen={isBookingOpen}
@@ -160,6 +177,14 @@ export function App() {
         imageSrc={lightboxImage}
         imageTitle={lightboxTitle}
         onClose={() => setLightboxImage(null)}
+      />
+
+      {/* 🛡️ Admin Portal Dashboard */}
+      <AdminPortal
+        isOpen={isAdminOpen}
+        onClose={() => setIsAdminOpen(false)}
+        tours={tours}
+        onRefreshTours={loadData}
       />
     </div>
   );
